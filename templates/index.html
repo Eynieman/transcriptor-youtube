@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Transcriptor de YouTube</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+    <div class="ventana">
+        <div class="barra-titulo">&#9632; Transcriptor de YouTube</div>
+
+        <h1>TRANSCRIPTOR DE VIDEOS DE YOUTUBE</h1>
+
+        <div class="contenido">
+
+            <form method="POST">
+                <h2>URL del video:</h2>
+                <input type="text" name="url" value="{{ url }}" placeholder="https://www.youtube.com/watch?v=...">
+                <input type="submit" value="TRANSCRIBIR">
+
+                {% if idiomas_disponibles %}
+                    <h2>Idioma:</h2>
+                    <select name="idioma">
+                        {% for idioma in idiomas_disponibles %}
+                            <option value="{{ idioma.codigo }}"
+                                {% if idioma.codigo == idioma_elegido %}selected{% endif %}>
+                                {{ idioma.nombre }}
+                                {% if idioma.auto %}(auto){% endif %}
+                                {% if idioma.traduccion %}(traduccion){% endif %}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    <input type="submit" value="OBTENER TRANSCRIPCION">
+                {% endif %}
+
+                <div class="selector-modo">
+                    <label>
+                        <input type="radio" name="modo" value="texto" checked>
+                        Texto completo
+                    </label>
+                    <label>
+                        <input type="radio" name="modo" value="timestamps">
+                        Con timestamps
+                    </label>
+                </div>
+            </form>
+
+            {% if error %}
+                <p class="error">&#9888; {{ error }}</p>
+            {% endif %}
+
+            {% if transcripcion %}
+                <hr>
+                <div id="bloque-texto">
+                    <h2>TRANSCRIPCION:</h2>
+                    <div class="transcripcion" id="texto-transcripcion">{{ transcripcion }}</div>
+                    <br>
+                    <input type="button" value="COPIAR AL PORTAPAPELES" onclick="copiarTexto()">
+                    <input type="button" value="DESCARGAR .TXT" onclick="descargarTexto()">
+                    <input type="button" value="RESUMIR CON IA" onclick="resumir()">
+                    <span id="aviso-copiado" style="display:none; margin-left:10px; color:green;">&#10003; Copiado</span>
+                </div>
+                <div id="bloque-tabla" style="display:none;">
+                    <h2>TRANSCRIPCION CON TIMESTAMPS:</h2>
+                    <table id="tabla-transcripcion">
+                        {% for f in fragmentos_con_tiempo %}
+                        <tr>
+                            <td class="tiempo">{{ f.tiempo }}</td>
+                            <td>{{ f.texto }}</td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                    <br>
+                    <input type="button" value="COPIAR AL PORTAPAPELES" onclick="copiarTabla()">
+                    <input type="button" value="DESCARGAR .TXT" onclick="descargarTabla()">
+                    <input type="button" value="RESUMIR CON IA" onclick="resumir()">
+                    <span id="aviso-copiado2" style="display:none; margin-left:10px; color:green;">&#10003; Copiado</span>
+                </div>
+            {% endif %}
+
+            {% if respuesta_pregunta %}
+                <hr>
+                <div id="bloque-pregunta">
+                    <h2>RESPUESTA A TU PREGUNTA:</h2>
+                    <div class="transcripcion">{{ respuesta_pregunta }}</div>
+                </div>
+            {% endif %}
+
+            {% if url %}
+                <hr>
+                <div id="bloque-pregunta-form">
+                    <h2>Preguntá sobre el video:</h2>
+                    <form method="POST">
+                        <input type="hidden" name="url" value="{{ url }}">
+                        <input type="hidden" name="idioma" value="{{ idioma_elegido }}">
+                        <textarea name="pregunta" rows="4" placeholder="Escribí una pregunta amplia sobre el contenido del video, por ejemplo: ¿De qué temas principales habla el video? ¿Qué dijo sobre X?">{{ pregunta }}</textarea>
+                        <br>
+                        <input type="submit" value="Preguntar" class="boton-preguntar">
+                    </form>
+                </div>
+            {% endif %}
+
+            {% if transcripcion %}
+                <div id="bloque-resumen" style="display:none;">
+                    <hr>
+                    <h2>RESUMEN:</h2>
+                    <div class="transcripcion" id="texto-resumen"></div>
+                    <br>
+                    <input type="button" value="COPIAR RESUMEN" onclick="copiarResumen()">
+                    <input type="button" value="DESCARGAR RESUMEN .TXT" onclick="descargarResumen()">
+                    <span id="aviso-copiado3" style="display:none; margin-left:10px; color:green;">&#10003; Copiado</span>
+                </div>
+            {% endif %}
+
+            <hr>
+            <p class="pie">Transcriptor de YouTube &copy; 2026</p>
+
+        </div>
+    </div>
+
+    <script src="/static/script.js"></script>
+
+</body>
+</html>

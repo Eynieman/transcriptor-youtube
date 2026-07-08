@@ -1,0 +1,11 @@
+Flask>=2.0
+youtube-transcript-api>=0.6.0
+google-generativeai>=0.0.7
+
+# Opcionales para fallback de transcripción por audio
+yt-dlp>=2024.12.31
+faster-whisper>=2024.6.0
+
+# Opcionales para vector store local y embeddings
+chromadb>=0.4.0
+sentence-transformers>=2.2.2
