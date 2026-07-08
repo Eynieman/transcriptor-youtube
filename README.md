@@ -1,70 +1,90 @@
 # Transcriptor de YouTube
 
-Aplicación Flask para transcribir videos de YouTube con timestamps, chunking y soporte de análisis/consulta.
+Aplicación web desarrollada con Flask para transcribir videos de YouTube, visualizar subtítulos con marcas de tiempo, generar resúmenes con IA y responder preguntas sobre el contenido del video.
 
-## Arquitectura
+## Funcionalidades principales
 
-1. `app.py`
-   - Endpoint `/` para recibir la URL de YouTube y mostrar la transcripción.
-   - Endpoint `/resumir` para generar un resumen usando Gemini.
+- Ingresá una URL de YouTube y obtené la transcripción del video.
+- Elegí el idioma disponible cuando el video incluye subtítulos.
+- Visualizá la transcripción en formato de texto completo o con timestamps.
+- Generá resúmenes automáticos utilizando Gemini.
+- Consultá el contenido del video mediante preguntas naturales, con respuestas basadas en la transcripción.
+- Si no existen subtítulos, la app puede recurrir a la transcripción por audio mediante Whisper.
 
-2. `services/youtube_service.py`
-   - Extrae el `video_id` de la URL.
-   - Intenta primero `youtube-transcript-api` para obtener subtítulos.
-   - Si no hay subtítulos, descarga audio con `yt-dlp` y transcribe con `faster-whisper`.
-   - Normaliza la salida en segmentos `{ text, start, end }`.
-   - Chunking por tiempo y palabras con `start_time` y `end_time`.
+## Estructura del proyecto
 
-3. `services/gemini_service.py`
-   - Genera resúmenes con Gemini.
-   - Tiene helper para respuestas que citan timestamps aproximados.
-
-4. `services/retrieval_service.py`
-   - Usa Chroma local para indexar embeddings.
-   - Permite búsqueda de similaridad y metadatos de chunks.
+- app.py: punto de entrada de la aplicación y lógica de las rutas principales.
+- services/youtube_service.py: obtención de subtítulos, transcripción por audio y preparación de fragmentos.
+- services/gemini_service.py: generación de resúmenes y respuestas a preguntas.
+- services/retrieval_service.py: motor opcional de recuperación semántica con Chroma y embeddings.
+- templates/index.html: interfaz web principal.
 
 ## Requisitos
 
-- Python 3.x
+- Python 3.9 o superior
 - Flask
-- `youtube-transcript-api`
-- `google-generativeai`
-- `yt-dlp` (opcional, para fallback cuando no hay subtítulos)
-- `faster-whisper` (opcional, para fallback cuando no hay subtítulos)
-- `chromadb` (opcional, para vector store local)
-- `sentence-transformers` (opcional, para embeddings locales)
+- youtube-transcript-api
+- google-generativeai
+- yt-dlp (opcional, para transcripción por audio)
+- faster-whisper (opcional, para transcripción por audio)
+- chromadb (opcional, para retrieval local)
+- sentence-transformers (opcional, para embeddings locales)
 
-## Configuración
+## Instalación
 
-1. Crear un archivo `.env` en la raíz con:
+1. Crear y activar un entorno virtual:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+2. Instalar las dependencias:
+
+```bash
+pip install -r requirements.txt
+```
+
+3. Configurar la API key de Google en un archivo .env en la raíz del proyecto:
 
 ```env
 GOOGLE_API_KEY=tu_api_key_aqui
 ```
 
-2. Instalar dependencias y ejecutar la app:
+## Ejecución
+
+Iniciá la aplicación con cualquiera de los siguientes comandos:
 
 ```bash
 python3 app.py
 ```
 
+o
+
+```bash
+./run.sh
+```
+
+La interfaz estará disponible en http://127.0.0.1:5000/.
+
 ## Uso
 
-- Pegar la URL de YouTube en la pantalla principal.
-- Seleccionar el idioma si hay subtítulos disponibles.
-- Ver la transcripción en texto completo o con timestamps.
-- Usar el botón `RESUMIR CON IA` para generar un resumen.
+1. Pegá la URL del video en el formulario principal.
+2. Seleccioná el idioma si el video ofrece subtítulos disponibles.
+3. Elegí si querés ver la transcripción completa o con marcas de tiempo.
+4. Utilizá el botón de resumen para obtener una síntesis con IA.
+5. Escribí una pregunta sobre el video para recibir una respuesta basada en la transcripción.
 
-## Notas
+## Notas importantes
 
-- Los timestamps en la respuesta son aproximados al chunk de 30-60 segundos.
-- El fallback a Whisper solo se activa si no hay subtítulos detectados.
-- La indexación con Chroma está pensada para escalar a varios videos o episodios.
-- Si querés usar la funcionalidad de retrieval/QA, necesitás indexar los chunks y llamar al modelo con el prompt que incluya los timestamps.
+- Las funciones de resumen y preguntas requieren una API key válida de Gemini.
+- Si no hay subtítulos disponibles, la app intenta transcribir el audio con Whisper.
+- La funcionalidad de retrieval con Chroma es opcional y requiere instalar las dependencias adicionales.
+- Los timestamps son aproximados y sirven como referencia para navegar la transcripción.
 
-## Tests
+## Pruebas
 
-Ejecutar los tests unitarios con:
+Para ejecutar las pruebas unitarias:
 
 ```bash
 python3 -m unittest
