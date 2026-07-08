@@ -4,8 +4,6 @@ __pycache__/
 *.py[cod]
 *.pyo
 *.pyd
+*.pyc
 .DS_Store
 .env
-services/__pycache__
-services/__init__.py
-tests/__pycache__
